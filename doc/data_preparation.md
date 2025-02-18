@@ -28,7 +28,7 @@ Data augmentation is used to artificially expand the training dataset by applyin
 
 ### 2.4. Resizing
 
-Mammographic images may have varying sizes and resolutions, making resizing necessary to standardize the input dimensions. A fixed image size (e.g., 224x224 or 512x512 pixels) ensures that the input is compatible with most deep learning models.
+Mammographic images may have varying sizes and resolutions, making resizing necessary to standardize the input dimensions. A fixed image size ensures that the input is compatible with most deep learning models.
 
 ## 3. Segmentation-Specific Transformations
 
