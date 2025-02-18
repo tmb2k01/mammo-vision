@@ -35,3 +35,9 @@ Mammographic images may have varying sizes and resolutions, making resizing nece
 ### 3.1. Mask-based Cropping
 
 Using the segmentation masks from the original dataset, we will crop out the tumor regions from the images. These cropped regions, which focus on the areas containing the tumors, will serve as input for training the segmentation model.
+
+To crop the images, you can run the following script:
+
+```
+python src/crop_images.py data_folder
+```
