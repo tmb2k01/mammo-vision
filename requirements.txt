@@ -1,0 +1,14 @@
+# Ensure compatibility with CUDA
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+gdown==5.2.0
+gradio==5.8.0
+matplotlib==3.9.2
+monai[all]==1.4.0
+nibabel==5.2.1
+opencv-python==4.10.0.84
+pandas==2.2.3
+pytorch-lightning==2.4.0
+scikit-image==0.24.0
+scikit-learn==1.5.2
+torchvision==0.19.1
