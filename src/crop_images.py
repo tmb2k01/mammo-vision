@@ -62,7 +62,7 @@ def process_dataset(input_folder, output_folder, dataset_type):
         image = Image.open(img_path)
 
         # Find corresponding masks
-        mask_pattern = os.path.join(mask_folder, f"{os.path.splitext(img_file)[0]}_mass_*.png")
+        mask_pattern = os.path.join(mask_folder, f"{os.path.splitext(img_file)[0]}_*.png")
         mask_files = sorted(glob.glob(mask_pattern))
         masks = [Image.open(mask_path) for mask_path in mask_files]
 
@@ -72,7 +72,7 @@ def process_dataset(input_folder, output_folder, dataset_type):
 
             # Save cropped images and masks
             cropped_image.save(os.path.join(output_image_folder, f"{os.path.splitext(img_file)[0]}_{i}.png"))
-            cropped_mask.save(os.path.join(output_mask_folder, f"{os.path.splitext(img_file)[0]}_mass_{i}.png"))
+            cropped_mask.save(os.path.join(output_mask_folder, f"{os.path.splitext(img_file)[0]}_mask_{i}.png"))
 
         processed_images += 1
 
