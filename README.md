@@ -14,5 +14,6 @@ This project focuses on mammographic tumor detection and segmentation using medi
 
 For more details on specific parts of our project, please refer to the following:
 
+* [Data Analysis](doc/data_analysis.md): A comprehensive analysis of the dataset.
 * [Data Preparation](doc/data_preparation.md): Steps for preparing mammographic images for the model.
 * [Project Plan](doc/project_plan.md): Outline of the overall project objectives, timelines, and milestones.
