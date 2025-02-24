@@ -2,12 +2,13 @@
 1. Make sure the input directory contains subdirectories named `images` and `masks`.
 2. Use the following command to run the script:
 
-    python prepare_data.py --input-directory <path_to_input_directory> --target-size <target_image_size>
+    python -m src.prepare_data --input-directory <path_to_input_directory> --target-size <target_image_size>
 
     - `<path_to_input_directory>`: Path to the directory containing `images` and `masks`.
-    - `<target_image_size>`: The target size to which images will be resized (e.g., 224).
+    - `<target_image_size>`: The target size to which images will be resized.
 
     Example:
+
     python -m src.prepare_data --input-directory ./data/cbis-ddsm/train --target-size 224
 """
 
