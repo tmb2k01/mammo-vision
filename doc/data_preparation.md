@@ -18,7 +18,9 @@ Contrast enhancement improves the visibility of key features, such as tumors or 
 
 Data augmentation is used to artificially expand the training dataset by applying various transformations to the original images. This helps reduce overfitting and improves the model's generalization. For our specific use case, we chose the following augmentation techniques:
 
-* **Horizontal Flipping**: Flip images vertically to simulate different orientations and variations in the data.
+* **Horizontal Flipping**: Flip images horizontally to simulate different orientations and variations in the data.
+
+* **Vertical Flipping**: Flip images vertically to simulate different orientations and variations in the data.
 
 * **Zooming**: Random zooming is applied to simulate variations in the scale of features, ensuring that the model can recognize features at different sizes.
 
