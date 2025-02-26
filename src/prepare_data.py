@@ -84,8 +84,8 @@ def prepare_dir(in_dir, subdir, out_dir):
     assert os.path.exists(in_img_dir)
     assert os.path.exists(in_msk_dir)
 
-    os.makedirs(out_img_dir)
-    os.makedirs(out_msk_dir)
+    os.makedirs(out_img_dir, exist_ok=True)
+    os.makedirs(out_msk_dir, exist_ok=True)
 
     in_img_names = os.listdir(in_img_dir)
     img_cnt = len(in_img_names)
@@ -97,7 +97,14 @@ def prepare_dir(in_dir, subdir, out_dir):
         in_img_path = os.path.join(in_img_dir, img_name)
 
         image = Image.open(in_img_path)
-        image = clahe.apply(np.array(image, dtype=np.uint8))
+
+        try:
+            image = clahe.apply(np.array(image, dtype=np.uint8))
+        except:
+            print(f"WARN: Couldn't apply CLAHE to '{in_img_path}'")
+            print(f"WARN: Skipping image '{in_img_path}' due to processing failure")
+            continue
+
         image = Image.fromarray(image)
 
         out_img_path = os.path.join(out_img_dir, img_name)
@@ -107,7 +114,7 @@ def prepare_dir(in_dir, subdir, out_dir):
 
     # Copy mask files into a directory the CbisDdsmDataset will find
     print(f"INFO: Copying masks from '{in_msk_dir}' to '{out_msk_dir}'")
-    shutil.copytree(in_msk_dir, out_msk_dir)
+    shutil.copytree(in_msk_dir, out_msk_dir, dirs_exist_ok=True)
 
     print(f"INFO: Finished processing '{in_dir}'")
 
