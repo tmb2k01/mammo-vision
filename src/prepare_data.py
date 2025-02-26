@@ -50,14 +50,28 @@ def create_val_dir(in_dir, subdir):
     os.makedirs(dst_img_dir, exist_ok=True)
     os.makedirs(dst_msk_dir, exist_ok=True)
 
-    # Collect patient IDs from filenames
-    patients = {f.split("_")[1] for f in os.listdir(src_img_dir)}
+    # Collect patients by density class
+    density_classes = {1: [], 2: [], 3: [], 4: []}
 
-    # Randomly select 10% of patients for validation
+    for filename in os.listdir(src_img_dir):
+        base_name = os.path.splitext(filename)[0]
+        parts = base_name.split("_")
+        density = int(parts[-1])
+        patient_id = parts[1]
+        density_classes[density].append(patient_id)
+
+    # Move 10% of patients from each density class to validation
     random.seed(42)
-    patients = sorted(patients)
-    val_patients = random.sample(patients, int(0.1 * len(patients)))
+    val_patients = []
 
+    for density in density_classes:
+        density_patients = sorted(set(density_classes[density]))
+        num_val_patients = int(0.1 * len(density_patients))
+        val_class_patients = random.sample(density_patients, num_val_patients)
+        val_patients.extend(val_class_patients)
+        print(f"INFO: Moving {num_val_patients} patients from density class {density}")
+
+    # Move files for validation set
     for filename in os.listdir(src_img_dir):
         patient_id = filename.split("_")[1]
         if patient_id in val_patients:
