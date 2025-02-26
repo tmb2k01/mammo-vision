@@ -105,6 +105,8 @@ def prepare_dir(in_dir, subdir, out_dir):
     img_cnt = len(in_img_names)
     print(f"INFO: Processing '{in_img_dir}': {img_cnt} images found")
 
+    successful_image_basenames = []
+
     # Apply CLAHE to each image
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     for i, img_name in enumerate(in_img_names, start=1):
@@ -124,11 +126,20 @@ def prepare_dir(in_dir, subdir, out_dir):
         out_img_path = os.path.join(out_img_dir, img_name)
         image.save(out_img_path)
 
+        successful_image_basenames.append(os.path.splitext(img_name)[0])
+
         print(f"INFO: Processed {i}/{img_cnt} images", end="\r", flush=True)
 
     # Copy mask files into a directory the CbisDdsmDataset will find
     print(f"INFO: Copying masks from '{in_msk_dir}' to '{out_msk_dir}'")
-    shutil.copytree(in_msk_dir, out_msk_dir, dirs_exist_ok=True)
+
+    for mask_name in os.listdir(in_msk_dir):
+        mask_base_name = os.path.splitext(mask_name)[0]
+        mask_prefix = mask_base_name.rsplit("_", 2)[0]
+        if mask_prefix in successful_image_basenames:
+            in_msk_path = os.path.join(in_msk_dir, mask_name)
+            out_msk_path = os.path.join(out_msk_dir, mask_name)
+            shutil.copy(in_msk_path, out_msk_path)
 
     print(f"INFO: Finished processing '{in_dir}'")
 
