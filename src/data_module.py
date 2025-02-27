@@ -17,7 +17,10 @@ def list_image_paths(root_dir):
 
 
 class CbisDdsmDataset(Dataset):
-    """CBIS-DDSM dataset."""
+    """
+    CBIS-DDSM dataset.
+    This Dataset class can be used for both detection and segmentation tasks.
+    """
 
     def __init__(self, root_dir, transform=None):
         img_dir = os.path.join(root_dir, "images")
@@ -44,7 +47,7 @@ class CbisDdsmDataset(Dataset):
 
         for msk_path in self.msk_paths:
             _, filename = os.path.split(msk_path)
-            if filename.endswith(".png") and filename.startswith(base_name):
+            if filename.startswith(base_name):
                 mask = Image.open(msk_path)
                 masks.append(mask)
 
@@ -134,7 +137,10 @@ class ToTensor:
 
 
 class CbisDdsmDataModule(pl.LightningDataModule):
-    "PyTorch Lightning DataModule for CBIS-DDSM dataset."
+    """
+    PyTorch Lightning DataModule for the CBIS-DDSM dataset.
+    This DataModule class can be used for both detection and segmentation tasks.
+    """
 
     def __init__(self, root_dir, batch_size, num_workers):
         super().__init__()

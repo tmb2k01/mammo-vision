@@ -2,6 +2,12 @@
 
 This document outlines the steps for preparing mammographic images before feeding them into a machine learning model. These steps include converting DICOM files, normalizing pixel values, resizing images, enhancing contrast, applying data augmentation, and preparing data for segmentation tasks.
 
+To prepare the data, you will need to run the [`src.prepare_data_detection`](../src/prepare_data_detection.py) and [`src.prepare_data_segmentation`](../src/prepare_data_segmentation.py) modules sequentially. Ensure that the input directory for the second module is set to the output directory of the first module. This guarantees that the validation set is created and contrast adjustment is applied to each image before creating the dataset for the segmentation task.
+
+For training, use the `CbisDdsmDataModule` class from [`src.data_module`](../src/data_module.py). This will ensure that all images are augmented and transformed to a consistent size.
+
+Before performing detection and segmentation on images in a web service, several preprocessing steps are required. Specifically, DICOM to PNG conversion, contrast adjustment, and resizing must be done before the mammographic images can be fed into the machine learning model.
+
 ## 1. Web Service Specific Transformations
 
 ### 1.1. DICOM to PNG Conversion

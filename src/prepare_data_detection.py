@@ -1,15 +1,15 @@
 """
-Prepares the dataset by processing image and mask files.
+Prepares the dataset for detection by processing image and mask files.
 
 To execute the script, use the following command:
-    `python -m src.prepare_data --input-directory <path_to_input_dir>`
+    `python -m src.prepare_data_detection --input-directory <path_to_input_dir>`
 
 Args:
     input_directory (str): Path to the directory containing the `train` and `test` subdirectories,
                             with `images` and `masks` subdirectories inside each of them.
 
 Example:
-    `python -m src.prepare_data --input-directory ./data/cbis-ddsm`
+    `python -m src.prepare_data_detection --input-directory ./data/cbis-ddsm`
 """
 
 import argparse
@@ -152,7 +152,7 @@ def prepare_dataset(in_dir):
     assert os.path.exists(train_dir)
     assert os.path.exists(test_dir)
 
-    out_dir = f"{in_dir}-prepared"
+    out_dir = f"{in_dir}-detec"
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
         print(f"WARN: Removed '{out_dir}'")
