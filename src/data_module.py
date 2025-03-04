@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pytorch_lightning as pl
+import torch
 import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
@@ -49,9 +50,17 @@ class CbisDdsmDataset(Dataset):
             _, filename = os.path.split(msk_path)
             if filename.startswith(base_name):
                 mask = Image.open(msk_path)
+                mask = np.array(mask)
                 masks.append(mask)
 
-        sample = {"image": image, "masks": masks}
+        combined_mask = np.zeros_like(masks[0])
+        for mask in masks:
+            combined_mask = np.logical_or(combined_mask, mask)
+
+        combined_mask = combined_mask.astype(np.uint8)
+        combined_mask = TF.to_pil_image(combined_mask)
+
+        sample = (image, combined_mask)
 
         if self.transform:
             sample = self.transform(sample)
@@ -68,17 +77,17 @@ class RandomFlip:
         self.pv = pv
 
     def __call__(self, sample):
-        image, masks = sample["image"], sample["masks"]
+        image, mask = sample
 
         if np.random.random() < self.ph:
             image = TF.hflip(image)
-            masks = [TF.hflip(m) for m in masks]
+            mask = TF.hflip(mask)
 
         if np.random.random() < self.pv:
             image = TF.vflip(image)
-            masks = [TF.vflip(m) for m in masks]
+            mask = TF.vflip(mask)
 
-        return {"image": image, "masks": masks}
+        return (image, mask)
 
 
 def zoom(image, zoom_factor):
@@ -103,13 +112,13 @@ class RandomZoom:
         self.p = p
 
     def __call__(self, sample):
-        image, masks = sample["image"], sample["masks"]
+        image, mask = sample
 
         if np.random.random() < self.p:
             image = zoom(image, self.zoom_factor)
-            masks = [zoom(m, self.zoom_factor) for m in masks]
+            mask = zoom(mask, self.zoom_factor)
 
-        return {"image": image, "masks": masks}
+        return (image, mask)
 
 
 class Resize:
@@ -118,22 +127,22 @@ class Resize:
         self.resize = transforms.Resize(output_size)
 
     def __call__(self, sample):
-        image, masks = sample["image"], sample["masks"]
+        image, mask = sample
 
         image = self.resize(image)
-        masks = [self.resize(m) for m in masks]
+        mask = self.resize(mask)
 
-        return {"image": image, "masks": masks}
+        return (image, mask)
 
 
 class ToTensor:
     def __call__(self, sample):
-        image, masks = sample["image"], sample["masks"]
+        image, mask = sample
 
-        image = TF.to_tensor(image)
-        masks = [TF.to_tensor(m) for m in masks]
+        image = TF.to_tensor(image).to(torch.uint8)
+        mask = TF.to_tensor(mask).to(torch.uint8)
 
-        return {"image": image, "masks": masks}
+        return (image, mask)
 
 
 class CbisDdsmDataModule(pl.LightningDataModule):
