@@ -76,7 +76,7 @@ class RandomFlip:
 
         if np.random.random() < self.pv:
             image = TF.vflip(image)
-            masks = [TF.hflip(m) for m in masks]
+            masks = [TF.vflip(m) for m in masks]
 
         return {"image": image, "masks": masks}
 
