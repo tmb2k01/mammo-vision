@@ -163,16 +163,20 @@ class CbisDdsmDataModule(pl.LightningDataModule):
         self.val_dataset = CbisDdsmDataset(
             os.path.join(root_dir, "val"),
             transform=transforms.Compose(
-                Resize((416, 416)),
-                ToTensor(),
+                [
+                    Resize((416, 416)),
+                    ToTensor(),
+                ]
             ),
         )
 
         self.test_dataset = CbisDdsmDataset(
             os.path.join(root_dir, "test"),
             transform=transforms.Compose(
-                Resize((416, 416)),
-                ToTensor(),
+                [
+                    Resize((416, 416)),
+                    ToTensor(),
+                ]
             ),
         )
 
