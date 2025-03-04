@@ -147,3 +147,24 @@ To analyze the impact of CLAHE quantitatively, we compared the histograms of ima
 The original images exhibit a narrow intensity distribution, especially in denser breast tissues. CLAHE broadens this distribution by redistributing pixel intensities more evenly, increasing contrast and making tumors more distinguishable from the surrounding tissue.
 
 By applying CLAHE, we aim to enhance the visibility of tumors, particularly in high-density breast images, where natural contrast is lower.
+
+### 3.4. Areas of Mass and Calcification Types of Cancer
+
+The histograms illustrate the distribution of calcification (Calc) and mass areas in both the training and test datasets.
+
+![Histograms of Areas of Mass and Calcification Types of Cancer](./images/areas_histo.png)
+
+**Skewed Distribution**  
+The distributions are highly right-skewed, indicating that most cancerous regions (both calcifications and masses) occupy relatively small areas, while a few cases have significantly larger areas.
+
+**Calc vs. Mass**  
+
+* In both train and test sets, mass areas (red and purple) generally appear more frequently and with larger variations compared to calcifications (blue and green).  
+* This suggests that masses may be more heterogeneous in size compared to calcifications.
+
+**Potential Impact**
+
+* The strong concentration of small areas implies that a model trained on this dataset should be particularly sensitive to detecting small lesions.  
+* The presence of large outliers in both datasets could impact the performance of machine learning models, requiring careful handling through normalization or log transformation.  
+
+Overall, the data distribution suggests that most detected cancerous regions are small, but there are occasional large lesions that could influence the model’s training and evaluation.
