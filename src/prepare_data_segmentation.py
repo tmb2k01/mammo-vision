@@ -1,3 +1,17 @@
+"""
+Prepares the dataset for segmentation by processing image and mask files.
+
+To execute the script, use the following command:
+    `python -m src.prepare_data_segmentation --input-directory <path_to_input_dir>`
+
+Args:
+    input_folder (str): Path to the directory containing the `train` and `test` subdirectories,
+                        with `images` and `masks` subdirectories inside each of them.
+
+Example:
+    `python -m src.prepare_data_segmentation --input-directory ./data/cbis-ddsm-detec`
+"""
+
 import argparse
 import glob
 import os
@@ -106,11 +120,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    output_folder = args.input_folder + "-cropped"
+    output_folder = f"{args.input_folder}-segme"
 
     if not os.path.exists(args.input_folder):
         print(f"Error: Input folder '{args.input_folder}' does not exist.")
         sys.exit(1)
 
-    for dataset in ["train", "test"]:
+    for dataset in ["train", "test", "val"]:
         process_dataset(args.input_folder, output_folder, dataset)
