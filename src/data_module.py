@@ -53,8 +53,12 @@ class CbisDdsmDataset(Dataset):
                 mask = np.array(mask)
                 masks.append(mask)
 
-        combined_mask = np.zeros_like(masks[0])
+        # Ensure that a black mask of the same size as the image is created
+        image_width, image_height = image.size
+        combined_mask = np.zeros((image_height, image_width), dtype=np.uint8)
         for mask in masks:
+            height, width = mask.shape
+            assert width == image_width and height == image_height
             combined_mask = np.logical_or(combined_mask, mask)
 
         combined_mask = combined_mask.astype(np.uint8)
@@ -151,14 +155,16 @@ class CbisDdsmDataModule(pl.LightningDataModule):
     This DataModule class can be used for both detection and segmentation tasks.
     """
 
-    def __init__(self, root_dir, batch_size, num_workers):
+    def __init__(self, root_dir, tumor_type, batch_size, num_workers):
         super().__init__()
+
+        assert tumor_type in ["calc", "mass"]
 
         self.batch_size = batch_size
         self.num_workers = num_workers
 
         self.train_dataset = CbisDdsmDataset(
-            root_dir=os.path.join(root_dir, "train"),
+            root_dir=os.path.join(root_dir, "train", tumor_type),
             transform=transforms.Compose(
                 [
                     RandomFlip(0.5, 0.5),
@@ -170,7 +176,7 @@ class CbisDdsmDataModule(pl.LightningDataModule):
         )
 
         self.val_dataset = CbisDdsmDataset(
-            os.path.join(root_dir, "val"),
+            os.path.join(root_dir, "val", tumor_type),
             transform=transforms.Compose(
                 [
                     Resize((416, 416)),
@@ -180,7 +186,7 @@ class CbisDdsmDataModule(pl.LightningDataModule):
         )
 
         self.test_dataset = CbisDdsmDataset(
-            os.path.join(root_dir, "test"),
+            os.path.join(root_dir, "test", tumor_type),
             transform=transforms.Compose(
                 [
                     Resize((416, 416)),

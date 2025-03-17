@@ -40,6 +40,7 @@ class MockModel(pl.LightningModule):
 if __name__ == "__main__":
     data_module = dm.CbisDdsmDataModule(
         root_dir="data/cbis-ddsm-detec",
+        tumor_type="calc",
         batch_size=5,
         num_workers=7,
     )

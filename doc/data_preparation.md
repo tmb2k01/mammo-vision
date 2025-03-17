@@ -2,7 +2,12 @@
 
 This document outlines the steps for preparing mammographic images before feeding them into a machine learning model. These steps include converting DICOM files, normalizing pixel values, resizing images, enhancing contrast, applying data augmentation, and preparing data for segmentation tasks.
 
-To prepare the data, you will need to run the [`src.prepare_data_detection`](../src/prepare_data_detection.py) and [`src.prepare_data_segmentation`](../src/prepare_data_segmentation.py) modules sequentially. Ensure that the input directory for the second module is set to the output directory of the first module. This guarantees that the validation set is created and contrast adjustment is applied to each image before creating the dataset for the segmentation task.
+To prepare the data, simply run the [`scripts/prepare_data.sh`](../scripts/prepare_data.sh) script. To do so, follow the steps below. Make sure to execute these commands from the root directory of the project. The script will only succeed if you have placed your dataset in the `data/cbis-ddsm` directory.
+
+```bash
+chmod +x scripts/prepare_data.sh
+./scripts/prepare_data.sh
+```
 
 For training, use the `CbisDdsmDataModule` class from [`src.data_module`](../src/data_module.py). This will ensure that all images are augmented and transformed to a consistent size.
 

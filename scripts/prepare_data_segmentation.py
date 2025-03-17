@@ -2,7 +2,7 @@
 Prepares the dataset for segmentation by processing image and mask files.
 
 To execute the script, use the following command:
-    `python -m src.prepare_data_segmentation --input-directory <path_to_input_dir>`
+    `python -m src.prepare_data_segmentation --input-folder <path_to_input_dir>`
 
 Args:
     input_folder (str): Path to the directory containing the `train` and `test` subdirectories,
@@ -113,7 +113,7 @@ def process_dataset(input_folder, output_folder, dataset_type):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Crop images based on mask regions.")
     parser.add_argument(
-        "input_folder",
+        "--input-folder",
         type=str,
         help="Path to the input data folder (e.g., '../data/cbis-ddsm')",
     )
@@ -127,4 +127,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     for dataset in ["train", "test", "val"]:
-        process_dataset(args.input_folder, output_folder, dataset)
+        for type in ["calc", "mass"]:
+            dt = os.path.join(dataset, type)
+            process_dataset(args.input_folder, output_folder, dt)
