@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    output_folder = f"{args.input_folder}-segme"
+    output_folder = f"{args.input_folder.rsplit("-", 1)[0]}-segme"
 
     if not os.path.exists(args.input_folder):
         print(f"Error: Input folder '{args.input_folder}' does not exist.")
