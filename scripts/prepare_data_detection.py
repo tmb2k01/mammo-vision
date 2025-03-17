@@ -93,7 +93,7 @@ def has_mask_of_type(img_name, tumor_type, msk_dir):
     assert tumor_type in ["calc", "mass"]
     for mask_name in os.listdir(msk_dir):
         mask_base_name = os.path.splitext(mask_name)[0]
-        mask_prefix = mask_base_name.rsplit("_", 6)[0]
+        mask_prefix = mask_base_name.rsplit("_", 2)[0]
         if f"_{tumor_type}_" in mask_base_name and mask_prefix in img_name:
             return True
     return False
