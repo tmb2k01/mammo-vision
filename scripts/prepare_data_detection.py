@@ -164,7 +164,7 @@ def prepare_dir(in_dir, subdir, out_dir):
                 out_msk_path = os.path.join(out_mass_msk_dir, mask_name)
             shutil.copy(in_msk_path, out_msk_path)
 
-    print(f"INFO: Finished processing '{in_dir}'")
+    print(f"INFO: Finished processing '{os.path.join(in_dir, subdir)}'")
 
 
 def prepare_dataset(in_dir):
