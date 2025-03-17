@@ -53,12 +53,9 @@ class CbisDdsmDataset(Dataset):
                 mask = np.array(mask)
                 masks.append(mask)
 
-        # Ensure that a black mask of the same size as the image is created
-        image_width, image_height = image.size
-        combined_mask = np.zeros((image_height, image_width), dtype=np.uint8)
+        assert len(masks) > 0
+        combined_mask = np.zeros_like(masks[0])
         for mask in masks:
-            height, width = mask.shape
-            assert width == image_width and height == image_height
             combined_mask = np.logical_or(combined_mask, mask)
 
         combined_mask = combined_mask.astype(np.uint8)

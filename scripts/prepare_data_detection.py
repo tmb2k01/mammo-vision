@@ -89,6 +89,16 @@ def list_image_paths(root_dir):
     return img_paths
 
 
+def has_mask_of_type(img_name, tumor_type, msk_dir):
+    assert tumor_type in ["calc", "mass"]
+    for mask_name in os.listdir(msk_dir):
+        mask_base_name = os.path.splitext(mask_name)[0]
+        mask_prefix = mask_base_name.rsplit("_", 6)[0]
+        if f"_{tumor_type}_" in mask_base_name and mask_prefix in img_name:
+            return True
+    return False
+
+
 def prepare_dir(in_dir, subdir, out_dir):
     in_img_dir = os.path.join(in_dir, subdir, "images")
     in_msk_dir = os.path.join(in_dir, subdir, "masks")
@@ -127,18 +137,20 @@ def prepare_dir(in_dir, subdir, out_dir):
 
         image = Image.fromarray(image)
 
-        out_calc_img_path = os.path.join(out_calc_img_dir, img_name)
-        image.save(out_calc_img_path)
+        if has_mask_of_type(img_name, "calc", in_msk_dir):
+            out_calc_img_path = os.path.join(out_calc_img_dir, img_name)
+            image.save(out_calc_img_path)
 
-        out_mass_img_path = os.path.join(out_mass_img_dir, img_name)
-        image.save(out_mass_img_path)
+        if has_mask_of_type(img_name, "mass", in_msk_dir):
+            out_mass_img_path = os.path.join(out_mass_img_dir, img_name)
+            image.save(out_mass_img_path)
 
         successful_image_basenames.append(os.path.splitext(img_name)[0])
 
         print(f"INFO: Processed {i}/{img_cnt} images", end="\r", flush=True)
 
     # Copy mask files into a directory the CbisDdsmDataset will find
-    print(f"INFO: Copying masks from '{in_msk_dir}' to '{out_calc_msk_dir}'")
+    print(f"INFO: Copying masks from '{in_msk_dir}' to '{out_calc_msk_dir}' and '{out_mass_msk_dir}'")
 
     for mask_name in os.listdir(in_msk_dir):
         mask_base_name = os.path.splitext(mask_name)[0]
