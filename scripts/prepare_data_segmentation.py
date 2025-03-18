@@ -2,7 +2,7 @@
 Prepares the dataset for segmentation by processing image and mask files.
 
 To execute the script, use the following command:
-    `python -m src.prepare_data_segmentation --input-directory <path_to_input_dir>`
+    `python -m src.prepare_data_segmentation --input-folder <path_to_input_dir>`
 
 Args:
     input_folder (str): Path to the directory containing the `train` and `test` subdirectories,
@@ -35,18 +35,24 @@ def crop_image_to_mask(image, mask, min_padding=50, max_padding=300):
     x_min, x_max = x_indices.min(), x_indices.max()
     y_min, y_max = y_indices.min(), y_indices.max()
 
-    # Apply padding
-    paddings = [np.random.randint(min_padding, max_padding) for _ in range(4)]
-    x_min = max(x_min - paddings[0], 0)
-    x_max = min(x_max + paddings[1], image.width)
-    y_min = max(y_min - paddings[2], 0)
-    y_max = min(y_max + paddings[3], image.height)
+    cropped_pairs = []
 
-    # Crop the image and mask
-    cropped_image = image.crop((x_min, y_min, x_max, y_max))
-    cropped_mask = mask.crop((x_min, y_min, x_max, y_max))
+    # Create five differently cropped version
+    for _ in range(5):
+        # Apply padding
+        paddings = [np.random.randint(min_padding, max_padding) for _ in range(4)]
+        x_min = max(x_min - paddings[0], 0)
+        x_max = min(x_max + paddings[1], image.width)
+        y_min = max(y_min - paddings[2], 0)
+        y_max = min(y_max + paddings[3], image.height)
 
-    return cropped_image, cropped_mask
+        # Crop the image and mask
+        cropped_image = image.crop((x_min, y_min, x_max, y_max))
+        cropped_mask = mask.crop((x_min, y_min, x_max, y_max))
+
+        cropped_pairs.append((cropped_image, cropped_mask))
+
+    return cropped_pairs
 
 
 def process_dataset(input_folder, output_folder, dataset_type):
@@ -86,19 +92,16 @@ def process_dataset(input_folder, output_folder, dataset_type):
 
         # Process each mask
         for i, mask in enumerate(masks):
-            cropped_image, cropped_mask = crop_image_to_mask(image, mask)
-
-            # Save cropped images and masks
-            cropped_image.save(
-                os.path.join(
-                    output_image_folder, f"{os.path.splitext(img_file)[0]}_{i}.png"
+            cropped_pairs = crop_image_to_mask(image, mask)
+            for  j, (cropped_image, cropped_mask) in enumerate(cropped_pairs):
+                base_name = f"{os.path.splitext(img_file)[0]}_{i}_{j}"
+                # Save cropped images and masks
+                cropped_image.save(
+                    os.path.join(output_image_folder, f"{base_name}.png")
                 )
-            )
-            cropped_mask.save(
-                os.path.join(
-                    output_mask_folder, f"{os.path.splitext(img_file)[0]}_mask_{i}.png"
+                cropped_mask.save(
+                    os.path.join(output_mask_folder, f"{base_name}_mask.png")
                 )
-            )
 
         # Print progress update
         print(
@@ -113,18 +116,20 @@ def process_dataset(input_folder, output_folder, dataset_type):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Crop images based on mask regions.")
     parser.add_argument(
-        "input_folder",
+        "--input-folder",
         type=str,
         help="Path to the input data folder (e.g., '../data/cbis-ddsm')",
     )
 
     args = parser.parse_args()
 
-    output_folder = f"{args.input_folder}-segme"
+    output_folder = f"{args.input_folder.rsplit("-", 1)[0]}-segme"
 
     if not os.path.exists(args.input_folder):
         print(f"Error: Input folder '{args.input_folder}' does not exist.")
         sys.exit(1)
 
     for dataset in ["train", "test", "val"]:
-        process_dataset(args.input_folder, output_folder, dataset)
+        for type in ["calc", "mass"]:
+            dt = os.path.join(dataset, type)
+            process_dataset(args.input_folder, output_folder, dt)
