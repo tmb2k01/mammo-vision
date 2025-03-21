@@ -12,11 +12,11 @@ from models.detection_model import DetectionModel
 
 def _get_detection_modules() -> tuple[DetectionDataModule, DetectionDataModule]:
     calc_data_module = DetectionDataModule(
-        root_dir="data/cbis-ddsm-detec", tumor_type="calc", batch_size=10, num_workers=4
+        root_dir="data/cbis-ddsm-detec", tumor_type="calc", batch_size=5, num_workers=4
     )
 
     mass_data_module = DetectionDataModule(
-        root_dir="data/cbis-ddsm-detec", tumor_type="mass", batch_size=10, num_workers=4
+        root_dir="data/cbis-ddsm-detec", tumor_type="mass", batch_size=5, num_workers=4
     )
     return calc_data_module, mass_data_module
 
@@ -44,7 +44,7 @@ def _train_model(
         logger=wandb_logger,
         callbacks=[checkpoint_callback, early_stopping],
     )
-    trainer.fit(model, data_module)
+    trainer.fit(model, datamodule=data_module)
     wandb.finish()
 
 

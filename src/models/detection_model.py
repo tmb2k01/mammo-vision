@@ -14,9 +14,14 @@ class DetectionModel(pl.LightningModule):
         self.model = fasterrcnn_resnet50_fpn(
             weights=(
                 FasterRCNN_ResNet50_FPN_Weights.COCO_V1 if weight_path is None else None
-            )
+            ),
         )
 
+        # Freeze backbone (ResNet50)
+        for param in self.model.backbone.parameters():
+            param.requires_grad = False
+
+        # Replace ROI head for custom number of classes
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features
         self.model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 

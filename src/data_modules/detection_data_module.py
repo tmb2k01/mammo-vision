@@ -7,7 +7,6 @@ import torch
 import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms
 
 from transform_utils import RandomFlip, RandomZoom, Resize, ToTensor
 
@@ -68,6 +67,12 @@ class CbisDdsmDatasetDetection(Dataset):
                 if len(x_indices) > 0 and len(y_indices) > 0:
                     x_min, x_max = x_indices.min(), x_indices.max()
                     y_min, y_max = y_indices.min(), y_indices.max()
+
+                    padding = 10
+                    x_min = np.clip(x_min - padding, 0, mask.shape[1])
+                    x_max = np.clip(x_max + padding, 0, mask.shape[1])
+                    y_min = np.clip(y_min - padding, 0, mask.shape[0])
+                    y_max = np.clip(y_max + padding, 0, mask.shape[0])
                     boxes.append([x_min, y_min, x_max, y_max])
                     labels.append(1)
 
@@ -81,8 +86,8 @@ class CbisDdsmDatasetDetection(Dataset):
         }
         sample = (image, target)
 
-        # if self.transform:
-        #     sample = self.transform(sample)
+        if self.transform:
+            sample = self.transform(sample)
 
         return sample
 
@@ -107,34 +112,34 @@ class CbisDdsmDataModuleDetection(pl.LightningDataModule):
 
         self.train_dataset = CbisDdsmDatasetDetection(
             root_dir=os.path.join(root_dir, "train", tumor_type),
-            transform=transforms.Compose(
-                [
-                    RandomFlip(0.5, 0.5),
-                    RandomZoom(1.5, 0.5),
-                    Resize((416, 416)),
-                    ToTensor(),
-                ]
-            ),
+            # transform=transforms.Compose(
+            #     [
+            #         RandomFlip(0.5, 0.5),
+            #         RandomZoom(1.5, 0.5),
+            #         Resize((416, 416)),
+            #         ToTensor(),
+            #     ]
+            # ),
         )
 
         self.val_dataset = CbisDdsmDatasetDetection(
             os.path.join(root_dir, "val", tumor_type),
-            transform=transforms.Compose(
-                [
-                    Resize((416, 416)),
-                    ToTensor(),
-                ]
-            ),
+            # transform=transforms.Compose(
+            #     [
+            #         Resize((416, 416)),
+            #         ToTensor(),
+            #     ]
+            # ),
         )
 
         self.test_dataset = CbisDdsmDatasetDetection(
             os.path.join(root_dir, "test", tumor_type),
-            transform=transforms.Compose(
-                [
-                    Resize((416, 416)),
-                    ToTensor(),
-                ]
-            ),
+            # transform=transforms.Compose(
+            #     [
+            #         Resize((416, 416)),
+            #         ToTensor(),
+            #     ]
+            # ),
         )
 
     def train_dataloader(self):
