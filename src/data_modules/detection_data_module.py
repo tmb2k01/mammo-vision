@@ -1,4 +1,5 @@
 import os
+import re
 
 import numpy as np
 import pytorch_lightning as pl
@@ -7,6 +8,8 @@ import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
+
+from transform_utils import RandomFlip, RandomZoom, Resize, ToTensor
 
 
 def list_image_paths(root_dir):
@@ -17,7 +20,7 @@ def list_image_paths(root_dir):
     return img_paths
 
 
-class CbisDdsmDataset(Dataset):
+class CbisDdsmDatasetDetection(Dataset):
     """
     CBIS-DDSM dataset.
     This Dataset class can be used for both detection and segmentation tasks.
@@ -41,118 +44,60 @@ class CbisDdsmDataset(Dataset):
     def __getitem__(self, idx):
         img_path = self.img_paths[idx]
         image = Image.open(img_path)
+        image = TF.to_tensor(image).float()
 
-        masks = []
         _, base_name = os.path.split(img_path)
         base_name, _ = os.path.splitext(base_name)
 
-        for msk_path in self.msk_paths:
+        mask_pattern = re.compile(f"{re.escape(base_name)}_(calc|mass)_\\d+\\.png$")
+        masks_path = [
+            path
+            for path in self.msk_paths
+            if mask_pattern.match(os.path.basename(path))
+        ]
+        boxes = []
+        labels = []
+
+        for msk_path in masks_path:
             _, filename = os.path.split(msk_path)
             if filename.startswith(base_name):
-                mask = Image.open(msk_path)
+                mask = Image.open(msk_path).convert("L")
                 mask = np.array(mask)
-                masks.append(mask)
 
-        assert len(masks) > 0
-        combined_mask = np.zeros_like(masks[0])
-        for mask in masks:
-            combined_mask = np.logical_or(combined_mask, mask)
+                y_indices, x_indices = np.where(mask > 0)
+                if len(x_indices) > 0 and len(y_indices) > 0:
+                    x_min, x_max = x_indices.min(), x_indices.max()
+                    y_min, y_max = y_indices.min(), y_indices.max()
+                    boxes.append([x_min, y_min, x_max, y_max])
+                    labels.append(1)
 
-        combined_mask = combined_mask.astype(np.uint8)
-        combined_mask = TF.to_pil_image(combined_mask)
+        if len(boxes) == 0:
+            boxes = [[0, 0, 1, 1]]  # Small dummy box
+            labels = [0]  # Background class (0)
 
-        sample = (image, combined_mask)
+        target = {
+            "boxes": torch.tensor(boxes, dtype=torch.float32),
+            "labels": torch.tensor(labels, dtype=torch.int64),
+        }
+        sample = (image, target)
 
-        if self.transform:
-            sample = self.transform(sample)
+        # if self.transform:
+        #     sample = self.transform(sample)
 
         return sample
 
 
-class RandomFlip:
-    def __init__(self, ph, pv):
-        assert isinstance(ph, float)
-        assert isinstance(pv, float)
-
-        self.ph = ph
-        self.pv = pv
-
-    def __call__(self, sample):
-        image, mask = sample
-
-        if np.random.random() < self.ph:
-            image = TF.hflip(image)
-            mask = TF.hflip(mask)
-
-        if np.random.random() < self.pv:
-            image = TF.vflip(image)
-            mask = TF.vflip(mask)
-
-        return (image, mask)
+def collate_fn(batch):
+    return tuple(zip(*batch))
 
 
-def zoom(image, zoom_factor):
-    width, height = image.size
-    new_width = int(width / zoom_factor)
-    new_height = int(height / zoom_factor)
-
-    top = (height - new_height) // 2
-    left = (width - new_width) // 2
-
-    image = TF.crop(image, top, left, new_height, new_width)
-    image = TF.resize(image, (height, width))
-
-    return image
-
-
-class RandomZoom:
-    def __init__(self, zoom_factor, p):
-        assert isinstance(zoom_factor, (int, float))
-        assert isinstance(p, float)
-        self.zoom_factor = zoom_factor
-        self.p = p
-
-    def __call__(self, sample):
-        image, mask = sample
-
-        if np.random.random() < self.p:
-            image = zoom(image, self.zoom_factor)
-            mask = zoom(mask, self.zoom_factor)
-
-        return (image, mask)
-
-
-class Resize:
-    def __init__(self, output_size):
-        assert isinstance(output_size, tuple)
-        self.resize = transforms.Resize(output_size)
-
-    def __call__(self, sample):
-        image, mask = sample
-
-        image = self.resize(image)
-        mask = self.resize(mask)
-
-        return (image, mask)
-
-
-class ToTensor:
-    def __call__(self, sample):
-        image, mask = sample
-
-        image = TF.to_tensor(image).to(torch.uint8)
-        mask = TF.to_tensor(mask).to(torch.uint8)
-
-        return (image, mask)
-
-
-class CbisDdsmDataModule(pl.LightningDataModule):
+class CbisDdsmDataModuleDetection(pl.LightningDataModule):
     """
     PyTorch Lightning DataModule for the CBIS-DDSM dataset.
     This DataModule class can be used for both detection and segmentation tasks.
     """
 
-    def __init__(self, root_dir, tumor_type, batch_size, num_workers):
+    def __init__(self, root_dir, tumor_type, batch_size, num_workers=0):
         super().__init__()
 
         assert tumor_type in ["calc", "mass"]
@@ -160,7 +105,7 @@ class CbisDdsmDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-        self.train_dataset = CbisDdsmDataset(
+        self.train_dataset = CbisDdsmDatasetDetection(
             root_dir=os.path.join(root_dir, "train", tumor_type),
             transform=transforms.Compose(
                 [
@@ -172,7 +117,7 @@ class CbisDdsmDataModule(pl.LightningDataModule):
             ),
         )
 
-        self.val_dataset = CbisDdsmDataset(
+        self.val_dataset = CbisDdsmDatasetDetection(
             os.path.join(root_dir, "val", tumor_type),
             transform=transforms.Compose(
                 [
@@ -182,7 +127,7 @@ class CbisDdsmDataModule(pl.LightningDataModule):
             ),
         )
 
-        self.test_dataset = CbisDdsmDataset(
+        self.test_dataset = CbisDdsmDatasetDetection(
             os.path.join(root_dir, "test", tumor_type),
             transform=transforms.Compose(
                 [
@@ -198,6 +143,8 @@ class CbisDdsmDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
+            collate_fn=collate_fn,
+            pin_memory=True,
         )
 
     def val_dataloader(self):
@@ -205,6 +152,8 @@ class CbisDdsmDataModule(pl.LightningDataModule):
             self.val_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
+            collate_fn=collate_fn,
+            pin_memory=True,
         )
 
     def test_dataloader(self):
@@ -212,4 +161,6 @@ class CbisDdsmDataModule(pl.LightningDataModule):
             self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
+            collate_fn=collate_fn,
+            pin_memory=True,
         )

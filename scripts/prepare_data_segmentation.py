@@ -93,7 +93,7 @@ def process_dataset(input_folder, output_folder, dataset_type):
         # Process each mask
         for i, mask in enumerate(masks):
             cropped_pairs = crop_image_to_mask(image, mask)
-            for  j, (cropped_image, cropped_mask) in enumerate(cropped_pairs):
+            for j, (cropped_image, cropped_mask) in enumerate(cropped_pairs):
                 base_name = f"{os.path.splitext(img_file)[0]}_{i}_{j}"
                 # Save cropped images and masks
                 cropped_image.save(
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    output_folder = f"{args.input_folder.rsplit("-", 1)[0]}-segme"
+    output_folder = f"{args.input_folder.rsplit('-', 1)[0]}-segme"
 
     if not os.path.exists(args.input_folder):
         print(f"Error: Input folder '{args.input_folder}' does not exist.")
