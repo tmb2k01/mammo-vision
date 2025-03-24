@@ -7,6 +7,7 @@ import torch
 import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
 
 from transform_utils import RandomFlip, RandomZoom, Resize, ToTensor
 
@@ -68,7 +69,7 @@ class CbisDdsmDatasetDetection(Dataset):
                     x_min, x_max = x_indices.min(), x_indices.max()
                     y_min, y_max = y_indices.min(), y_indices.max()
 
-                    padding = 10
+                    padding = 50
                     x_min = np.clip(x_min - padding, 0, mask.shape[1])
                     x_max = np.clip(x_max + padding, 0, mask.shape[1])
                     y_min = np.clip(y_min - padding, 0, mask.shape[0])
@@ -109,37 +110,19 @@ class CbisDdsmDataModuleDetection(pl.LightningDataModule):
 
         self.batch_size = batch_size
         self.num_workers = num_workers
-
         self.train_dataset = CbisDdsmDatasetDetection(
             root_dir=os.path.join(root_dir, "train", tumor_type),
-            # transform=transforms.Compose(
-            #     [
-            #         RandomFlip(0.5, 0.5),
-            #         RandomZoom(1.5, 0.5),
-            #         Resize((416, 416)),
-            #         ToTensor(),
-            #     ]
-            # ),
+            transform=transforms.Compose(
+                [RandomFlip(0.5, 0.5), RandomZoom((1, 3), 0.5)]
+            ),
         )
 
         self.val_dataset = CbisDdsmDatasetDetection(
-            os.path.join(root_dir, "val", tumor_type),
-            # transform=transforms.Compose(
-            #     [
-            #         Resize((416, 416)),
-            #         ToTensor(),
-            #     ]
-            # ),
+            os.path.join(root_dir, "val", tumor_type)
         )
 
         self.test_dataset = CbisDdsmDatasetDetection(
-            os.path.join(root_dir, "test", tumor_type),
-            # transform=transforms.Compose(
-            #     [
-            #         Resize((416, 416)),
-            #         ToTensor(),
-            #     ]
-            # ),
+            os.path.join(root_dir, "test", tumor_type)
         )
 
     def train_dataloader(self):

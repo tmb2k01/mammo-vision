@@ -25,7 +25,7 @@ def _train_model(
     model: LightningModule,
     data_module: LightningDataModule,
     filename: str,
-    max_epochs: int = 10,
+    max_epochs: int = 50,
 ) -> None:
     checkpoint_callback = ModelCheckpoint(
         monitor="val_loss",
@@ -35,10 +35,8 @@ def _train_model(
         save_weights_only=True,
         filename=filename,
     )
-    early_stopping = EarlyStopping(monitor="val_loss")
-    wandb_logger = pl.loggers.WandbLogger(
-        project=f"mammo-vision-{filename}", log_model="all"
-    )
+    early_stopping = EarlyStopping(monitor="val_loss", patience=10)
+    wandb_logger = pl.loggers.WandbLogger(project=f"mammo-vision-{filename}")
     trainer = Trainer(
         max_epochs=max_epochs,
         logger=wandb_logger,
@@ -56,7 +54,7 @@ def _train() -> None:
     mass_detection_model = DetectionModel()
 
     # Train Calc detection model
-    _train_model(calc_detection_model, calc_data_module, "calc-detection")
+    # _train_model(calc_detection_model, calc_data_module, "calc-detection")
     # Train Calc detection model
     _train_model(mass_detection_model, mass_data_module, "mass-detection")
 
