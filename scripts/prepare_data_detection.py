@@ -102,16 +102,16 @@ def has_mask_of_type(img_name, tumor_type, msk_dir):
 def prepare_dir(in_dir, subdir, out_dir):
     in_img_dir = os.path.join(in_dir, subdir, "images")
     in_msk_dir = os.path.join(in_dir, subdir, "masks")
-    out_calc_img_dir = os.path.join(out_dir, subdir, "calc", "images")
-    out_calc_msk_dir = os.path.join(out_dir, subdir, "calc", "masks")
+    # out_calc_img_dir = os.path.join(out_dir, subdir, "calc", "images")
+    # out_calc_msk_dir = os.path.join(out_dir, subdir, "calc", "masks")
     out_mass_img_dir = os.path.join(out_dir, subdir, "mass", "images")
     out_mass_msk_dir = os.path.join(out_dir, subdir, "mass", "masks")
 
     assert os.path.exists(in_img_dir)
     assert os.path.exists(in_msk_dir)
 
-    os.makedirs(out_calc_img_dir, exist_ok=True)
-    os.makedirs(out_calc_msk_dir, exist_ok=True)
+    # os.makedirs(out_calc_img_dir, exist_ok=True)
+    # os.makedirs(out_calc_msk_dir, exist_ok=True)
     os.makedirs(out_mass_img_dir, exist_ok=True)
     os.makedirs(out_mass_msk_dir, exist_ok=True)
 
@@ -126,31 +126,49 @@ def prepare_dir(in_dir, subdir, out_dir):
     for i, img_name in enumerate(in_img_names, start=1):
         in_img_path = os.path.join(in_img_dir, img_name)
 
-        image = Image.open(in_img_path)
-
-        try:
-            image = clahe.apply(np.array(image, dtype=np.uint8))
-        except:
-            print(f"WARN: Couldn't apply CLAHE to '{in_img_path}'")
-            print(f"WARN: Skipping image '{in_img_path}' due to processing failure")
-            continue
-
-        image = Image.fromarray(image)
-
-        if has_mask_of_type(img_name, "calc", in_msk_dir):
-            out_calc_img_path = os.path.join(out_calc_img_dir, img_name)
-            image.save(out_calc_img_path)
-
         if has_mask_of_type(img_name, "mass", in_msk_dir):
+            image = Image.open(in_img_path)
+
+            try:
+                image = clahe.apply(np.array(image, dtype=np.uint8))
+            except:
+                print(f"WARN: Couldn't apply CLAHE to '{in_img_path}'")
+                print(f"WARN: Skipping image '{in_img_path}' due to processing failure")
+                continue
+
+            image = Image.fromarray(image)
+
             out_mass_img_path = os.path.join(out_mass_img_dir, img_name)
             image.save(out_mass_img_path)
+
+        # image = Image.open(in_img_path)
+
+        # try:
+        #     image = clahe.apply(np.array(image, dtype=np.uint8))
+        # except:
+        #     print(f"WARN: Couldn't apply CLAHE to '{in_img_path}'")
+        #     print(f"WARN: Skipping image '{in_img_path}' due to processing failure")
+        #     continue
+
+        # image = Image.fromarray(image)
+
+        # if has_mask_of_type(img_name, "mass", in_msk_dir):
+        #     out_mass_img_path = os.path.join(out_mass_img_dir, img_name)
+        #     image.save(out_mass_img_path)
+
+        # if has_mask_of_type(img_name, "calc", in_msk_dir):
+        #     out_calc_img_path = os.path.join(out_calc_img_dir, img_name)
+        #     image.save(out_calc_img_path)
 
         successful_image_basenames.append(os.path.splitext(img_name)[0])
 
         print(f"INFO: Processed {i}/{img_cnt} images", end="\r", flush=True)
 
     # Copy mask files into a directory the CbisDdsmDataset will find
-    print(f"INFO: Copying masks from '{in_msk_dir}' to '{out_calc_msk_dir}' and '{out_mass_msk_dir}'")
+    # print(
+    #     f"INFO: Copying masks from '{in_msk_dir}' to '{out_calc_msk_dir}' and '{out_mass_msk_dir}'"
+    # )
+    print(f"INFO: Copying masks from '{in_msk_dir}' to '{out_mass_msk_dir}'")
 
     for mask_name in os.listdir(in_msk_dir):
         mask_base_name = os.path.splitext(mask_name)[0]
@@ -158,10 +176,12 @@ def prepare_dir(in_dir, subdir, out_dir):
         if mask_prefix in successful_image_basenames:
             in_msk_path = os.path.join(in_msk_dir, mask_name)
             # Determine the appropriate directory for each mask
-            if "_calc_" in mask_name:
-                out_msk_path = os.path.join(out_calc_msk_dir, mask_name)
-            else:
-                out_msk_path = os.path.join(out_mass_msk_dir, mask_name)
+            # if "_calc_" in mask_name:
+            #     out_msk_path = os.path.join(out_calc_msk_dir, mask_name)
+            # else:
+            #     out_msk_path = os.path.join(out_mass_msk_dir, mask_name)
+
+            out_msk_path = os.path.join(out_mass_msk_dir, mask_name)
             shutil.copy(in_msk_path, out_msk_path)
 
     print(f"INFO: Finished processing '{os.path.join(in_dir, subdir)}'")

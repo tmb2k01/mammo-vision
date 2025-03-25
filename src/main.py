@@ -10,15 +10,11 @@ from data_modules.detection_data_module import (
 from models.detection_model import DetectionModel
 
 
-def _get_detection_modules() -> tuple[DetectionDataModule, DetectionDataModule]:
-    calc_data_module = DetectionDataModule(
-        root_dir="data/cbis-ddsm-detec", tumor_type="calc", batch_size=5, num_workers=4
-    )
-
-    mass_data_module = DetectionDataModule(
+def _get_detection_module() -> DetectionDataModule:
+    data_module = DetectionDataModule(
         root_dir="data/cbis-ddsm-detec", tumor_type="mass", batch_size=5, num_workers=4
     )
-    return calc_data_module, mass_data_module
+    return data_module
 
 
 def _train_model(
@@ -48,15 +44,12 @@ def _train_model(
 
 def _train() -> None:
     wandb.login()
-    calc_data_module, mass_data_module = _get_detection_modules()
+    mass_data_module = _get_detection_module()
 
-    calc_detection_model = DetectionModel()
-    mass_detection_model = DetectionModel()
+    mass_data_module = DetectionModel()
 
-    # Train Calc detection model
-    # _train_model(calc_detection_model, calc_data_module, "calc-detection")
-    # Train Calc detection model
-    _train_model(mass_detection_model, mass_data_module, "mass-detection")
+    # Train detection model
+    _train_model(mass_data_module, mass_data_module, "mass-detection")
 
 
 def _main() -> None:

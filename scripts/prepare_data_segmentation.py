@@ -130,6 +130,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     for dataset in ["train", "test", "val"]:
-        for type in ["calc", "mass"]:
+        # for type in ["calc", "mass"]:
+        for type in ["mass"]:
             dt = os.path.join(dataset, type)
             process_dataset(args.input_folder, output_folder, dt)
