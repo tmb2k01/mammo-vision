@@ -8,7 +8,7 @@ Usage:
 import pytorch_lightning as pl
 import torch
 
-import src.data_module as dm
+import data_modules.detection_data_module as dm
 
 
 class MockModel(pl.LightningModule):
