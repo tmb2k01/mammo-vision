@@ -9,7 +9,7 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-from transform_utils import RandomFlip, RandomZoom
+from src.transform_utils import RandomFlip, RandomZoom
 
 
 def list_image_paths(root_dir):

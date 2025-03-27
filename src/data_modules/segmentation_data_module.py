@@ -1,16 +1,13 @@
 import os
-import re
 
-import numpy as np
 import pytorch_lightning as pl
-import torch
 import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.nn.functional import one_hot
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-from transform_utils import RandomFlip, Resize
+from src.transform_utils import RandomFlip, Resize
 
 
 def list_image_paths(root_dir):
@@ -44,7 +41,8 @@ class CbisDdsmDatasetSegmentation(Dataset):
     def __getitem__(self, idx):
         img_path = self.img_paths[idx]
         mask_path = os.path.join(
-            self.msk_dir, os.path.basename(img_path).replace(".png", "_mask.png")
+            self.msk_dir,
+            os.path.basename(img_path).replace(".png", "_mask.png"),
         )
         image = Image.open(img_path)
         image = TF.to_tensor(image).float()
@@ -63,11 +61,6 @@ class CbisDdsmDatasetSegmentation(Dataset):
 
 
 class CbisDdsmDataModuleSegmentation(pl.LightningDataModule):
-    """
-    PyTorch Lightning DataModule for the CBIS-DDSM dataset.
-    This DataModule class can be used for both detection and segmentation tasks.
-    """
-
     def __init__(self, root_dir, tumor_type="mass", batch_size=5, num_workers=0):
         super().__init__()
 
@@ -77,17 +70,17 @@ class CbisDdsmDataModuleSegmentation(pl.LightningDataModule):
         self.num_workers = num_workers
         self.train_dataset = CbisDdsmDatasetSegmentation(
             root_dir=os.path.join(root_dir, "train", tumor_type),
-            transform=transforms.Compose([RandomFlip(0.5, 0.5), Resize((256, 256))]),
+            transform=transforms.Compose([RandomFlip(0.5, 0.5), Resize((1024, 1024))]),
         )
 
         self.val_dataset = CbisDdsmDatasetSegmentation(
             os.path.join(root_dir, "val", tumor_type),
-            transform=transforms.Compose([Resize((256, 256))]),
+            transform=transforms.Compose([Resize((1024, 1024))]),
         )
 
         self.test_dataset = CbisDdsmDatasetSegmentation(
             os.path.join(root_dir, "test", tumor_type),
-            transform=transforms.Compose([Resize((256, 256))]),
+            transform=transforms.Compose([Resize((1024, 1024))]),
         )
 
     def train_dataloader(self):
