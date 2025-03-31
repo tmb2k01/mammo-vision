@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image
 
 
-def crop_image_to_mask(image, mask, min_padding=50, max_padding=300):
+def crop_image_to_mask(image, mask, min_padding=10, max_padding=50):
     """Crops an image based on the mask's white area with random padding."""
     mask_array = np.array(mask)
 
