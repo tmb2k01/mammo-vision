@@ -70,17 +70,17 @@ class CbisDdsmDataModuleSegmentation(pl.LightningDataModule):
         self.num_workers = num_workers
         self.train_dataset = CbisDdsmDatasetSegmentation(
             root_dir=os.path.join(root_dir, "train", tumor_type),
-            transform=transforms.Compose([RandomFlip(0.5, 0.5), Resize((128, 128))]),
+            transform=transforms.Compose([RandomFlip(0.5, 0.5), Resize((256, 256))]),
         )
 
         self.val_dataset = CbisDdsmDatasetSegmentation(
             os.path.join(root_dir, "val", tumor_type),
-            transform=transforms.Compose([Resize((128, 128))]),
+            transform=transforms.Compose([Resize((256, 256))]),
         )
 
         self.test_dataset = CbisDdsmDatasetSegmentation(
             os.path.join(root_dir, "test", tumor_type),
-            transform=transforms.Compose([Resize((128, 128))]),
+            transform=transforms.Compose([Resize((256, 256))]),
         )
 
     def train_dataloader(self):

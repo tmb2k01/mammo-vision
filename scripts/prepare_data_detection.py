@@ -66,7 +66,7 @@ def create_val_dir(in_dir, subdir):
 
     for density in density_classes:
         density_patients = sorted(set(density_classes[density]))
-        num_val_patients = int(0.1 * len(density_patients))
+        num_val_patients = int(0.01 * len(density_patients))
         val_class_patients = random.sample(density_patients, num_val_patients)
         val_patients.extend(val_class_patients)
         print(f"INFO: Moving {num_val_patients} patients from density class {density}")
