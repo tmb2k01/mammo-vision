@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image
 
 
-def crop_image_to_mask(image, mask, min_padding=50, max_padding=300):
+def crop_image_to_mask(image, mask, min_padding=10, max_padding=50):
     """Crops an image based on the mask's white area with random padding."""
     mask_array = np.array(mask)
 
@@ -93,7 +93,7 @@ def process_dataset(input_folder, output_folder, dataset_type):
         # Process each mask
         for i, mask in enumerate(masks):
             cropped_pairs = crop_image_to_mask(image, mask)
-            for  j, (cropped_image, cropped_mask) in enumerate(cropped_pairs):
+            for j, (cropped_image, cropped_mask) in enumerate(cropped_pairs):
                 base_name = f"{os.path.splitext(img_file)[0]}_{i}_{j}"
                 # Save cropped images and masks
                 cropped_image.save(
@@ -123,13 +123,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    output_folder = f"{args.input_folder.rsplit("-", 1)[0]}-segme"
+    output_folder = f"{args.input_folder.rsplit('-', 1)[0]}-segme"
 
     if not os.path.exists(args.input_folder):
         print(f"Error: Input folder '{args.input_folder}' does not exist.")
         sys.exit(1)
 
     for dataset in ["train", "test", "val"]:
-        for type in ["calc", "mass"]:
+        # for type in ["calc", "mass"]:
+        for type in ["mass"]:
             dt = os.path.join(dataset, type)
             process_dataset(args.input_folder, output_folder, dt)
