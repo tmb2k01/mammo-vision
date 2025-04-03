@@ -3,6 +3,7 @@ import gradio as gr
 import numpy as np
 import pydicom
 import torch
+import torchvision.ops as ops
 import torchvision.transforms.functional as TF
 from PIL import Image
 
@@ -39,11 +40,18 @@ def predict(image):
     segmentation_masks = []
 
     confidence_threshold = 0.4
+    iou_threshold = 0.3
     scores = detections["scores"]
     boxes = detections["boxes"]
     predicted_boxes = boxes[scores > confidence_threshold]
+    keep_indices = ops.nms(
+        predicted_boxes,
+        scores[scores > confidence_threshold],
+        iou_threshold,
+    )
+    filtered_boxes = predicted_boxes[keep_indices]
 
-    for box in predicted_boxes:
+    for box in filtered_boxes:
         x_min, y_min, x_max, y_max = map(int, box)
         cropped_image = image.crop((x_min, y_min, x_max, y_max))
         cropped_image = TF.resize(cropped_image, [256, 256])
