@@ -25,11 +25,11 @@ Once the bounding boxes are detected, we use a U-Net model to perform segmentati
 ### **Inputs**
 
 - **Cropped Image Patches**: Regions of interest extracted from the original images based on the bounding boxes.
-- **Segmentation Masks**: Ground truth binary masks with shape `(1, H, W)`, where pixels are labeled `1` for lesions and `0` for the background.
+- **Segmentation Masks**: Ground truth binary masks with shape `(2, H, W)`, where the actual class for each pixel is one-hot encoded.
 
 ### **Outputs**
 
-- **Predicted Segmentation Masks**: A pixel-wise mask where each pixel is assigned a probability of belonging to the lesion or the background.
+- **Predicted Segmentation Masks**: A pixel-wise one-hot encoded mask where each class is assigned a probability of belonging to the lesion or the background for each pixel.
 - **Dice Score**: A metric to evaluate segmentation accuracy by comparing predicted and ground truth masks.
 
 ## 3. Data Modules
