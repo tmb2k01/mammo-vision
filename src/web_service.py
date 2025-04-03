@@ -83,7 +83,7 @@ def resize(image):
     image = image.copy()
     width, height = image.size
     new_width = IMG_SIZE * width // height
-    image.resize((new_width, IMG_SIZE), Image.Resampling.LANCZOS)
+    image = image.resize((new_width, IMG_SIZE), Image.Resampling.LANCZOS)
     return image
 
 
