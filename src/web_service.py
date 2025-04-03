@@ -16,50 +16,54 @@ CLAHE = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 
 
 def load_models():
-    MODEL_DETEC = DetectionModel(weight_path="./models/mass-detection.ckpt")
-    MODEL_DETEC.eval()
-    MODEL_SEGME = SegmentationModel(weight_path="./models/mass-segmentation.ckpt")
-    MODEL_SEGME.eval()
+    global MODEL_DETEC
+    global MODEL_SEGME
+
+    MODEL_DETEC = DetectionModel(weight_path="models/mass-detection.ckpt")
+    MODEL_DETEC = MODEL_DETEC.eval()
+    MODEL_SEGME = SegmentationModel.load_from_checkpoint(
+        "models/mass-segmentation.ckpt",
+        map_location="cpu",
+    )
+    MODEL_SEGME = MODEL_SEGME.eval()
 
 
 def predict(image):
     image = CLAHE.apply(np.array(image, dtype=np.uint8))
     image = Image.fromarray(image)
-    image = torch.tensor(image).unsqueeze(0)
+    image_tensor = TF.to_tensor(image).unsqueeze(0)
 
-    # Run detection model
     with torch.no_grad():
-        detections = MODEL_DETEC(image)
+        detections = MODEL_DETEC(image_tensor)[0]
 
-    # Prepare for segmentation
     segmentation_masks = []
-    for box in detections["boxes"]:
+
+    confidence_threshold = 0.4
+    scores = detections["scores"]
+    boxes = detections["boxes"]
+    predicted_boxes = boxes[scores > confidence_threshold]
+
+    for box in predicted_boxes:
         x_min, y_min, x_max, y_max = map(int, box)
         cropped_image = image.crop((x_min, y_min, x_max, y_max))
         cropped_image = TF.resize(cropped_image, [256, 256])
         cropped_image = TF.to_tensor(cropped_image).unsqueeze(0)
 
-        # Run segmentation model
         with torch.no_grad():
             mask = MODEL_SEGME(cropped_image)
-            mask = mask.squeeze().numpy()
-            mask = cv2.resize(mask, (x_max - x_min, y_max - y_min))
-            segmentation_masks.append((x_min, y_min, mask))
+            mask = torch.argmax(mask, dim=1)
+            mask = TF.resize(mask, [x_max - x_min, y_max - y_min]).squeeze(0).numpy()
+            segmentation_masks.append(mask)
 
-    # Add boxes and segmentation to the original image
     image = np.array(image)
-    for box, (x_min, y_min, mask) in zip(detections["boxes"], segmentation_masks):
+    for box, mask in zip(predicted_boxes, segmentation_masks):
         x_min, y_min, x_max, y_max = map(int, box)
         cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
-        mask = (mask > 0.5).astype(np.uint8) * 255
-        image[y_min:y_max, x_min:x_max] = cv2.addWeighted(
-            image[y_min:y_max, x_min:x_max], 0.7, mask, 0.3, 0
-        )
+        mask = np.transpose(mask * 255).astype(np.uint8)
+        orig = image[y_min:y_max, x_min:x_max]
+        image[y_min:y_max, x_min:x_max] = cv2.addWeighted(orig, 0.7, mask, 0.3, 0)
 
-    image = Image.fromarray(image)
-    print(image.size)
-
-    return empty_image()
+    return Image.fromarray(image)
 
 
 def empty_image():
