@@ -18,3 +18,4 @@ For more details on specific parts of our project, please refer to the following
 * [Data Preparation](doc/data_preparation.md): Steps for preparing mammographic images for the model.
 * [Model Evaluation](doc/model_evaluation.md): Results and analysis of the performance of the final model.
 * [Project Plan](doc/project_plan.md): Outline of the overall project objectives, timelines, and milestones.
+* [Web Service](doc/web_service.md): A step-by-step guide to launching the web service for breast tumor detection and segmentation.
