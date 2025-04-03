@@ -47,7 +47,7 @@ class DetectionModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         images, targets = batch
-        loss_dict = self.forward(images, targets)
+        loss_dict = self.model(images, targets)
         train_loss = sum(loss for loss in loss_dict.values())
         self.log(
             "train_loss",
@@ -63,7 +63,7 @@ class DetectionModel(pl.LightningModule):
         images, targets = batch
         self.model.train()
         with torch.no_grad():  # Ensure gradients are not calculated
-            loss_dict = self.forward(images, targets)
+            loss_dict = self.model(images, targets)
         val_loss = sum(loss for loss in loss_dict.values())
         self.model.eval()
         self.log(

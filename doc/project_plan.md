@@ -36,8 +36,6 @@ The performance of the tumor detection and segmentation model will be evaluated 
 
   * **Center Distance (Euclidean distance)**: The distance between the predicted center of the tumor and the actual center (as marked in the ground truth). This metric evaluates how accurately the model predicts the center of the tumor, which is critical for cropping the correct region for segmentation.
 
-  * **Precision**: The proportion of true positive tumor regions out of all regions predicted as tumors. This metric helps evaluate the model's ability to correctly identify tumor regions without too many false positives.
+  * **Dice Score**: A metric used to evaluate the similarity between two sets, commonly used in image segmentation tasks. It measures the overlap between the predicted segmentation and the ground truth.
 
-  * **Recall**:  The proportion of true positive tumor regions out of all actual tumor regions. This metric focuses on the model's ability to detect as many tumors as possible, even at the risk of some false positives.
-
-  * **F1 Score**: The harmonic mean of precision and recall, offering a balanced view of the model's detection performance.
+  * **Intersection over Union (IoU)**: A metric used to evaluate the accuracy of image segmentation. It measures the ratio of the intersection to the union of the predicted segmentation and the ground truth.
