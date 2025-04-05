@@ -176,3 +176,4 @@ data/
 wandb/
 models/
 !src/models/
+.gradio

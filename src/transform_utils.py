@@ -146,23 +146,3 @@ class Resize:
             target = self.resize(target)
 
         return image, target
-
-
-class ToTensor:
-    """Converts an image and its mask or bounding boxes to PyTorch tensors."""
-
-    def __call__(
-        self, sample: Tuple[torch.Tensor, Union[Dict, torch.Tensor]]
-    ) -> Tuple[torch.Tensor, Union[Dict, torch.Tensor]]:
-        image, target = sample
-        image = TF.to_tensor(image).to(torch.float32)  # Convert image to float tensor
-
-        if isinstance(target, dict):  # Bounding boxes case
-            target["boxes"] = target["boxes"].to(torch.float32)
-            target["labels"] = target["labels"].to(torch.int64)
-        else:  # Mask case
-            target = TF.to_tensor(target).to(
-                torch.uint8
-            )  # Convert mask to uint8 tensor
-
-        return image, target

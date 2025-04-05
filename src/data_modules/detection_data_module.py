@@ -9,7 +9,7 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-from transform_utils import RandomFlip, RandomZoom, Resize, ToTensor
+from src.transform_utils import RandomFlip, RandomZoom
 
 
 def list_image_paths(root_dir):
@@ -103,7 +103,7 @@ class CbisDdsmDataModuleDetection(pl.LightningDataModule):
     This DataModule class can be used for both detection and segmentation tasks.
     """
 
-    def __init__(self, root_dir, tumor_type, batch_size, num_workers=0):
+    def __init__(self, root_dir, tumor_type="mass", batch_size=5, num_workers=0):
         super().__init__()
 
         assert tumor_type in ["calc", "mass"]
