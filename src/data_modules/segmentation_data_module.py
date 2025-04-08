@@ -11,11 +11,9 @@ from src.transform_utils import RandomFlip, Resize
 
 
 def list_image_paths(root_dir):
-    img_paths = []
-    for filename in os.listdir(root_dir):
-        img_path = os.path.join(root_dir, filename)
-        img_paths.append(img_path)
-    return img_paths
+    return [
+        os.path.join(root_dir, filename) for filename in sorted(os.listdir(root_dir))
+    ]
 
 
 class CbisDdsmDatasetSegmentation(Dataset):
