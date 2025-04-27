@@ -37,6 +37,10 @@ python3 -m src.main
 
 The service should now be accessible via a local web interface.
 
+## Uploading Files to the Web Service
+
+The web service expects users to upload **DICOM files** as input. Classical image formats such as JPEG or PNG are not supported. Ensure that the files you upload are in the DICOM format for proper processing.
+
 ## Preview of the Web Interface
 
 ![Gradio Web Service Preview](images/ws_preview.png)
