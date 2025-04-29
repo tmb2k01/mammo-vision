@@ -103,6 +103,7 @@ Examples of predicted bounding boxes compared to the ground truth annotations ar
    <img src="images/det_ex_2.png" alt="Example 2" height="350"/>
    <img src="images/det_ex_3.png" alt="Example 3" height="350"/>
 </p>
+
 ---
 
 ## Segmentation Model
