@@ -71,13 +71,38 @@ The results also highlight areas for potential improvement, particularly in refi
 
 ---
 
+### Per-Ground Truth Box IoU vs. Size Analysis
+
+To better understand the model’s detection behavior, we analyzed the relationship between the size of each ground-truth lesion and the best detection quality (measured by IoU).
+
+For each ground-truth box:
+
+- The lesion size was computed as the area of the annotated bounding box.
+- The IoU between the ground-truth box and any predicted box was recorded.
+
+The scatter plot below visualizes this relationship:
+
+- **X-axis:** Ground truth box size (in pixel²)
+- **Y-axis:** IoU score for the prediction
+
+This analysis provides a more detailed view of the model’s performance, highlighting whether it struggles more with detecting smaller lesions.
+
+<img src="images/gt_box_size_vs_iou.png" alt="GT Box Size vs IoU Scatter Plot" width="500"/>
+
+Based on the plot, it appears that the model has more difficulty detecting smaller lesions:  
+There is a noticeable concentration of small ground-truth boxes with low or even zero IoU values, suggesting that the model often misses or poorly localizes smaller abnormalities.
+
+---
+
 ### Visual Results: Predicted Bounding Boxes
 
 Examples of predicted bounding boxes compared to the ground truth annotations are provided below.
 
-<img src="images/det_ex_1.png" alt="Example 1" height="350"/>
-<img src="images/det_ex_2.png" alt="Example 2" height="350"/>
-<img src="images/det_ex_3.png" alt="Example 3" height="350"/>
+<p>
+   <img src="images/det_ex_1.png" alt="Example 1" height="350"/>
+   <img src="images/det_ex_2.png" alt="Example 2" height="350"/>
+   <img src="images/det_ex_3.png" alt="Example 3" height="350"/>
+</p>
 
 ---
 
@@ -117,9 +142,9 @@ To provide a clearer understanding of the segmentation model's performance, we p
 ## Conclusion
 
 Both the segmentation and detection models show promising potential for breast tumor analysis.
- 
+
 The detection model provides a solid baseline for identifying tumors, although improvements are needed, particularly in precise localization and balancing sensitivity and specificity.
-The segmentation model accurately delineates tumor regions with strong overlap between predictions and ground truth. 
+The segmentation model accurately delineates tumor regions with strong overlap between predictions and ground truth.
 
 Thresholds were selected based on performance curve analyses to optimize the trade-off between precision and recall.  
 Further fine-tuning, validation on larger datasets, and expert oversight are essential steps toward real-world deployment.
