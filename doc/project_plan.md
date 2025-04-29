@@ -28,14 +28,13 @@ The following milestones will guide the progress of the project:
 
 The performance of the tumor detection and segmentation model will be evaluated based on the following metrics:
 
+* **Detection Metrics**:
+
+  * **Intersection over Union (IoU)**: This measures the overlap between the predicted bounding box and the ground-truth box. It is critical because it evaluates how well the model localizes the tumor. A higher IoU means the predicted box closely matches the true lesion area.
+  * **F1 Score**: This harmonic mean of precision and recall captures the balance between correctly detecting tumors and minimizing false detections. It is important because it reflects the overall effectiveness of the model in identifying tumors without producing excessive false positives.
+
 * **Segmentation Metrics**:
 
   * **Dice Similarity Coefficient (Dice score)**: A measure of overlap between the predicted and true tumor regions, with values ranging from 0 (no overlap) to 1 (perfect overlap).
-
-* **Detection Metrics**:
-
-  * **Center Distance (Euclidean distance)**: The distance between the predicted center of the tumor and the actual center (as marked in the ground truth). This metric evaluates how accurately the model predicts the center of the tumor, which is critical for cropping the correct region for segmentation.
-
-  * **Dice Score**: A metric used to evaluate the similarity between two sets, commonly used in image segmentation tasks. It measures the overlap between the predicted segmentation and the ground truth.
 
   * **Intersection over Union (IoU)**: A metric used to evaluate the accuracy of image segmentation. It measures the ratio of the intersection to the union of the predicted segmentation and the ground truth.
